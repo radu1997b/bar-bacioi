@@ -61,9 +61,7 @@ echo ""
 echo ">> Running schema.sql..."
 wrangler d1 execute "$DB_NAME" --remote --file=schema.sql --yes
 
-echo ">> Running seed.sql..."
-wrangler d1 execute "$DB_NAME" --remote --file=seed.sql --yes
-
+# Run migrations BEFORE seed so columns exist for INSERT statements
 if [ -f migration-add-images.sql ]; then
   echo ">> Running migration-add-images.sql..."
   wrangler d1 execute "$DB_NAME" --remote --file=migration-add-images.sql --yes 2>/dev/null || echo "   Skipped (column may already exist)."
@@ -83,6 +81,9 @@ if [ -f migration-auth.sql ]; then
   echo ">> Running migration-auth.sql..."
   wrangler d1 execute "$DB_NAME" --remote --file=migration-auth.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
 fi
+
+echo ">> Running seed.sql..."
+wrangler d1 execute "$DB_NAME" --remote --file=seed.sql --yes
 
 # --- Deploy ---
 echo ""
