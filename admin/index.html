@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bar Bacioi · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0709;
+      --surface: #140b0e;
+      --surface2: #1c1115;
+      --text: #f5ecec;
+      --muted: rgba(245,236,236,0.55);
+      --line: rgba(245,236,236,0.08);
+      --accent: #ff2d87;
+      --danger: #ff4444;
+      --radius: 8px;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .header-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .header-title span { color: var(--accent); }
+
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--text);
+      cursor: pointer;
+      border-radius: var(--radius);
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .icon-btn:hover { background: var(--surface2); border-color: rgba(245,236,236,0.2); }
+    .icon-btn svg { width: 16px; height: 16px; }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Drag and drop */
+    .drag-handle {
+      cursor: grab;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      padding: 4px 6px 4px 2px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+    .drag-handle:hover { opacity: 1; color: var(--text); }
+    .drag-handle:active { cursor: grabbing; }
+    .drag-handle svg { width: 14px; height: 14px; }
+
+    /* Content */
+    .content {
+      margin-top: 56px;
+      padding: 24px 20px 60px;
+      max-width: 840px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Status messages */
+    .status-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      gap: 12px;
+      color: var(--muted);
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      background: rgba(255,68,68,0.08);
+      border: 1px solid rgba(255,68,68,0.25);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      color: var(--danger);
+      font-size: 13px;
+    }
+
+    /* Top bar action */
+    .top-action {
+      margin-bottom: 20px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      transition: opacity 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:active { opacity: 0.7; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 16px;
+    }
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+    }
+    .btn-ghost:hover { border-color: rgba(245,236,236,0.2); opacity: 1; background: #241820; }
+    .btn-danger {
+      background: rgba(255,68,68,0.12);
+      color: var(--danger);
+      padding: 6px 12px;
+      border: 1px solid rgba(255,68,68,0.2);
+    }
+    .btn-danger:hover { background: rgba(255,68,68,0.2); opacity: 1; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      padding: 6px 0;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-link:hover { opacity: 0.75; }
+
+    /* Category card */
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .cat-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 16px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .cat-index {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      opacity: 0.7;
+      min-width: 26px;
+      padding-top: 2px;
+    }
+    .cat-info { flex: 1; min-width: 0; }
+    .cat-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .cat-blurb { font-size: 12px; color: var(--muted); }
+    .cat-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* Sub section */
+    .sub-section {
+      border-top: 1px solid var(--line);
+    }
+    .sub-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px 8px;
+    }
+    .sub-dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .sub-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      flex: 1;
+    }
+    .sub-actions { display: flex; gap: 6px; }
+
+    /* Items list */
+    .items-list {
+      padding: 0 16px 12px;
+    }
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-names { flex: 1; min-width: 0; }
+    .item-name-ro { font-size: 13px; font-weight: 500; }
+    .item-name-ru { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .item-price {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .tag-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255,45,135,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(255,45,135,0.25);
+    }
+    .item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    /* Add item row */
+    .add-item-row {
+      padding: 8px 16px 12px;
+    }
+    .add-sub-row {
+      padding: 8px 16px 4px;
+    }
+
+    /* Flat items section */
+    .flat-items {
+      padding: 0 16px 4px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid rgba(245,236,236,0.12);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .modal-title { font-size: 15px; font-weight: 600; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 0 4px;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px; }
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 14px 20px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    /* Form */
+    .form-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 20px;
+    }
+    @media (max-width: 480px) {
+      .form-cols { grid-template-columns: 1fr; }
+    }
+    .form-col-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .form-input, .form-textarea, .form-select {
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: rgba(255,45,135,0.5);
+    }
+    .form-textarea { resize: vertical; min-height: 70px; }
+    .form-select option { background: var(--surface); }
+    .form-divider {
+      height: 1px;
+      background: var(--line);
+      margin: 18px 0;
+    }
+    .form-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .form-row .form-group { flex: 1; }
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .form-check input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 15px; height: 15px;
+      cursor: pointer;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(245,236,236,0.15); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(245,236,236,0.25); }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ─── Icons ────────────────────────────────────────────────────────────────────
+const IconRefresh = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10"/>
+    <polyline points="1 20 1 14 7 14"/>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+  </svg>
+);
+const IconPlus = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+const IconEdit = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+const IconTrash = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+    <path d="M10 11v6M14 11v6"/>
+    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+  </svg>
+);
+const IconChevron = ({ open }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+    style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+    <polyline points="9 18 15 12 9 6"/>
+  </svg>
+);
+const IconGrip = () => (
+  <svg viewBox="0 0 16 16" fill="currentColor">
+    <circle cx="5.5" cy="3.5" r="1.2"/><circle cx="10.5" cy="3.5" r="1.2"/>
+    <circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/>
+    <circle cx="5.5" cy="12.5" r="1.2"/><circle cx="10.5" cy="12.5" r="1.2"/>
+  </svg>
+);
+
+// ─── Modal ────────────────────────────────────────────────────────────────────
+function Modal({ title, onClose, children, footer }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal">
+        <div className="modal-header">
+          <span className="modal-title">{title}</span>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-footer">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Category Form Modal ───────────────────────────────────────────────────────
+function CategoryModal({ initial, onSave, onClose }) {
+  const [form, setForm] = useState({
+    name_ro: initial?.name_ro ?? '',
+    name_ru: initial?.name_ru ?? '',
+    blurb_ro: initial?.blurb_ro ?? '',
+    blurb_ru: initial?.blurb_ru ?? '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSave = async () => {
+    if (!form.name_ro.trim() || !form.name_ru.trim()) {
+      setError('Completați câmpurile obligatorii.');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      await onSave(form);
+      onClose();
+    } catch (e) {
+      setError(e.message);
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal
+      title={initial ? 'Editează categorie' : 'Categorie nouă'}
+      onClose={onClose}
+      footer={
+        <>
+          {error && <span style={{ color: 'var(--danger)', fontSize: 12, marginRight: 'auto' }}>{error}</span>}
+          <button className="btn btn-ghost" onClick={onClose} disabled={saving}>Anulează</button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? 'Se salvează…' : 'Salvează'}
+          </button>
+        </>
+      }
+    >
+      <div className="form-cols">
+        <div>
+          <div className="form-col-label">Română</div>
+          <div className="form-group">
+            <label className="form-label">Nume *</label>
+            <input className="form-input" value={form.name_ro} onChange={e => set('name_ro', e.target.value)} placeholder="Mic Dejun" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Descriere scurtă</label>
+            <input className="form-input" value={form.blurb_ro} onChange={e => set('blurb_ro', e.target.value)} placeholder="Servit până la 13:00" />
+          </div>
+        </div>
+        <div>
+          <div className="form-col-label">Русский</div>
+          <div className="form-group">
+            <label className="form-label">Название *</label>
+            <input className="form-input" value={form.name_ru} onChange={e => set('name_ru', e.target.value)} placeholder="Завтрак" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Подзаголовок</label>
+            <input className="form-input" value={form.blurb_ru} onChange={e => set('blurb_ru', e.target.value)} placeholder="Подаётся до 13:00" />
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Subcategory Form Modal ────────────────────────────────────────────────────
+function SubcategoryModal({ initial, onSave, onClose }) {
+  const [form, setForm] = useState({
+    name_ro: initial?.name_ro ?? '',
+    name_ru: initial?.name_ru ?? '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSave = async () => {
+    if (!form.name_ro.trim() || !form.name_ru.trim()) {
+      setError('Completați câmpurile obligatorii.');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      await onSave(form);
+      onClose();
+    } catch (e) {
+      setError(e.message);
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal
+      title={initial ? 'Editează subcategorie' : 'Subcategorie nouă'}
+      onClose={onClose}
+      footer={
+        <>
+          {error && <span style={{ color: 'var(--danger)', fontSize: 12, marginRight: 'auto' }}>{error}</span>}
+          <button className="btn btn-ghost" onClick={onClose} disabled={saving}>Anulează</button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? 'Se salvează…' : 'Salvează'}
+          </button>
+        </>
+      }
+    >
+      <div className="form-cols">
+        <div>
+          <div className="form-col-label">Română</div>
+          <div className="form-group">
+            <label className="form-label">Nume *</label>
+            <input className="form-input" value={form.name_ro} onChange={e => set('name_ro', e.target.value)} placeholder="Gustări reci" />
+          </div>
+        </div>
+        <div>
+          <div className="form-col-label">Русский</div>
+          <div className="form-group">
+            <label className="form-label">Название *</label>
+            <input className="form-input" value={form.name_ru} onChange={e => set('name_ru', e.target.value)} placeholder="Холодные закуски" />
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Item Form Modal ───────────────────────────────────────────────────────────
+function ItemModal({ initial, onSave, onClose }) {
+  const [form, setForm] = useState({
+    name_ro: initial?.name_ro ?? '',
+    name_ru: initial?.name_ru ?? '',
+    desc_ro: initial?.desc_ro ?? '',
+    desc_ru: initial?.desc_ru ?? '',
+    price: initial?.price ?? '',
+    price_bottle: initial?.price_bottle ?? '',
+    tag: initial?.tag ?? '',
+    bottle_only: initial?.bottle_only ? true : false,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(initial?.image_url ?? null);
+  const [imageUploading, setImageUploading] = useState(false);
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleSave = async () => {
+    if (!form.name_ro.trim() || !form.name_ru.trim() || form.price === '') {
+      setError('Completați câmpurile obligatorii (Nume RO, Nume RU, Preț).');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      let image_url = imagePreview ? (initial?.image_url ?? null) : null;
+      if (imageFile) {
+        setImageUploading(true);
+        const fd = new FormData();
+        fd.append('file', imageFile);
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload eșuat');
+        image_url = data.url;
+        setImageUploading(false);
+      }
+      await onSave({
+        name_ro: form.name_ro.trim(),
+        name_ru: form.name_ru.trim(),
+        desc_ro: form.desc_ro.trim(),
+        desc_ru: form.desc_ru.trim(),
+        price: parseInt(form.price, 10) || 0,
+        price_bottle: form.price_bottle !== '' ? parseInt(form.price_bottle, 10) : null,
+        tag: form.tag || null,
+        bottle_only: form.bottle_only ? 1 : 0,
+        image_url,
+      });
+      onClose();
+    } catch (e) {
+      setError(e.message);
+      setSaving(false);
+      setImageUploading(false);
+    }
+  };
+
+  return (
+    <Modal
+      title={initial ? 'Editează produs' : 'Produs nou'}
+      onClose={onClose}
+      footer={
+        <>
+          {error && <span style={{ color: 'var(--danger)', fontSize: 12, marginRight: 'auto' }}>{error}</span>}
+          <button className="btn btn-ghost" onClick={onClose} disabled={saving}>Anulează</button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? 'Se salvează…' : 'Salvează'}
+          </button>
+        </>
+      }
+    >
+      <div className="form-cols">
+        <div>
+          <div className="form-col-label">Română</div>
+          <div className="form-group">
+            <label className="form-label">Nume *</label>
+            <input className="form-input" value={form.name_ro} onChange={e => set('name_ro', e.target.value)} placeholder="Ouă Benedict" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Descriere</label>
+            <textarea className="form-textarea" rows={3} value={form.desc_ro} onChange={e => set('desc_ro', e.target.value)} placeholder="ou poșat, șuncă…" />
+          </div>
+        </div>
+        <div>
+          <div className="form-col-label">Русский</div>
+          <div className="form-group">
+            <label className="form-label">Название *</label>
+            <input className="form-input" value={form.name_ru} onChange={e => set('name_ru', e.target.value)} placeholder="Яйца Бенедикт" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Описание</label>
+            <textarea className="form-textarea" rows={3} value={form.desc_ru} onChange={e => set('desc_ru', e.target.value)} placeholder="яйцо пашот, ветчина…" />
+          </div>
+        </div>
+      </div>
+
+      <div className="form-divider" />
+
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label">Preț (MDL) *</label>
+          <input className="form-input" type="number" min="0" value={form.price} onChange={e => set('price', e.target.value)} placeholder="145" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Preț sticlă (MDL)</label>
+          <input className="form-input" type="number" min="0" value={form.price_bottle} onChange={e => set('price_bottle', e.target.value)} placeholder="—" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Tag</label>
+          <select className="form-select" value={form.tag} onChange={e => set('tag', e.target.value)}>
+            <option value="">fără</option>
+            <option value="house">house</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="form-group" style={{ marginTop: 6 }}>
+        <label className="form-check">
+          <input
+            type="checkbox"
+            checked={form.bottle_only}
+            onChange={e => set('bottle_only', e.target.checked)}
+          />
+          <span style={{ fontSize: 13 }}>Doar sticlă (bottle only)</span>
+        </label>
+      </div>
+
+      <div className="form-divider" />
+
+      <div className="form-group">
+        <label className="form-label">Imagine produs</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="preview"
+              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, flexShrink: 0, border: '1px solid var(--border)' }}
+            />
+          )}
+          <div>
+            <label style={{ cursor: 'pointer' }}>
+              <span className="btn btn-ghost btn-sm" style={{ pointerEvents: 'none' }}>
+                {imagePreview ? 'Schimbă imaginea' : 'Adaugă imagine'}
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleImageChange}
+              />
+            </label>
+            {imagePreview && (
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ marginLeft: 6, color: 'var(--danger)' }}
+                onClick={() => { setImageFile(null); setImagePreview(null); }}
+              >
+                Elimină
+              </button>
+            )}
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>JPEG, PNG sau WebP · max 5 MB</div>
+          </div>
+        </div>
+        {imageUploading && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>Se încarcă imaginea…</div>}
+      </div>
+    </Modal>
+  );
+}
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// ─── Item Row ─────────────────────────────────────────────────────────────────
+function ItemRow({ item, onEdit, onDelete }) {
+  return (
+    <div className="item-row">
+      <div className="item-names">
+        <div className="item-name-ro">{item.name_ro}</div>
+        <div className="item-name-ru">{item.name_ru}</div>
+      </div>
+      <div className="item-price">{item.price} MDL{item.price_bottle ? ` / ${item.price_bottle}` : ''}</div>
+      {item.tag && <span className="tag-badge">{item.tag}</span>}
+      <div className="item-actions">
+        <button className="btn btn-ghost btn-sm" onClick={() => onEdit(item)} title="Editează">
+          <IconEdit />
+        </button>
+        <button className="btn btn-danger btn-sm" onClick={() => onDelete(item)} title="Șterge">
+          <IconTrash />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Category Card ────────────────────────────────────────────────────────────
+function CategoryCard({ cat, index, subs, items, onReload }) {
+  const [modal, setModal] = useState(null);
+  const [collapsed, setCollapsed] = useState(true);
+  const [expandedSubs, setExpandedSubs] = useState(new Set());
+  // modal: null | { type: 'editCat' | 'editSub' | 'addSub' | 'addItem' | 'editItem', data? }
+
+  const catSubs = subs.filter(s => s.category_id === cat.id);
+  const [orderedSubs, setOrderedSubs] = useState(catSubs);
+  const [showSubs, setShowSubs] = useState(catSubs.length > 0);
+  const [draggingSub, setDraggingSub] = useState(null);
+  const [overSub, setOverSub] = useState(null);
+
+  useEffect(() => setOrderedSubs(subs.filter(s => s.category_id === cat.id)), [subs]);
+
+  const flatItems = !showSubs
+    ? items.filter(i => i.category_id === cat.id)
+    : [];
+
+  const handleToggleSubs = (checked) => {
+    if (!checked && orderedSubs.length > 0) {
+      alert('Șterge mai întâi toate subcategoriile pentru a dezactiva această opțiune.');
+      return;
+    }
+    setShowSubs(checked);
+  };
+
+  const handleSubReorder = async (from, to) => {
+    if (from === null || from === to) return;
+    const next = [...orderedSubs];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setOrderedSubs(next);
+    setDraggingSub(null);
+    setOverSub(null);
+    try {
+      await apiFetch('/api/subcategories/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ ids: next.map(s => s.id) }),
+      });
+    } catch {
+      setOrderedSubs(subs.filter(s => s.category_id === cat.id));
+    }
+  };
+
+  const confirmDelete = (msg, fn) => {
+    if (window.confirm(msg)) fn();
+  };
+
+  // Category ops
+  const handleEditCat = async (form) => {
+    await apiFetch(`/api/categories/${cat.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(form),
+    });
+    await onReload();
+  };
+
+  const handleDeleteCat = () => {
+    confirmDelete(
+      `Șterge categoria "${cat.name_ro}"? Toate subcategoriile și produsele vor fi șterse.`,
+      async () => {
+        await apiFetch(`/api/categories/${cat.id}`, { method: 'DELETE' });
+        await onReload();
+      }
+    );
+  };
+
+  // Subcategory ops
+  const handleAddSub = async (form) => {
+    await apiFetch('/api/subcategories', {
+      method: 'POST',
+      body: JSON.stringify({ ...form, category_id: cat.id }),
+    });
+    await onReload();
+  };
+
+  const handleEditSub = async (sub, form) => {
+    await apiFetch(`/api/subcategories/${sub.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(form),
+    });
+    await onReload();
+  };
+
+  const handleDeleteSub = (sub) => {
+    confirmDelete(
+      `Șterge subcategoria "${sub.name_ro}"? Produsele asociate vor rămâne în categorie.`,
+      async () => {
+        await apiFetch(`/api/subcategories/${sub.id}`, { method: 'DELETE' });
+        await onReload();
+      }
+    );
+  };
+
+  // Item ops
+  const handleAddItem = async (catId, subId, form) => {
+    await apiFetch('/api/items', {
+      method: 'POST',
+      body: JSON.stringify({ ...form, category_id: catId, subcategory_id: subId || null }),
+    });
+    await onReload();
+  };
+
+  const handleEditItem = async (item, form) => {
+    await apiFetch(`/api/items/${item.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        ...form,
+        category_id: item.category_id,
+        subcategory_id: item.subcategory_id || null,
+      }),
+    });
+    await onReload();
+  };
+
+  const handleDeleteItem = (item) => {
+    confirmDelete(`Șterge produsul "${item.name_ro}"?`, async () => {
+      await apiFetch(`/api/items/${item.id}`, { method: 'DELETE' });
+      await onReload();
+    });
+  };
+
+  return (
+    <div className="cat-card">
+      {/* Category header */}
+      <div className="cat-header">
+        <div className="drag-handle" title="Trage pentru a reordona"><IconGrip /></div>
+        <div className="cat-index">{String(index).padStart(2, '0')}</div>
+        <div className="cat-info">
+          <div className="cat-name">{cat.name_ro}</div>
+          {cat.blurb_ro && <div className="cat-blurb">{cat.blurb_ro}</div>}
+          <label className="form-check" style={{ marginTop: 8 }}>
+            <input type="checkbox" checked={showSubs} onChange={e => handleToggleSubs(e.target.checked)} />
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Are subcategorii</span>
+          </label>
+        </div>
+        <div className="cat-actions">
+          <button className="btn btn-ghost btn-sm" onClick={() => setCollapsed(c => !c)} title={collapsed ? 'Expandează' : 'Restrânge'}>
+            <IconChevron open={!collapsed} />
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setModal({ type: 'editCat' })} title="Editează">
+            <IconEdit />
+          </button>
+          <button className="btn btn-danger btn-sm" onClick={handleDeleteCat} title="Șterge">
+            <IconTrash />
+          </button>
+        </div>
+      </div>
+
+      {!collapsed && <>
+      {/* Flat items (no subs) */}
+      {!showSubs && (
+        <>
+          {flatItems.length > 0 && (
+            <div className="items-list flat-items">
+              {flatItems.map(item => (
+                <ItemRow
+                  key={item.id}
+                  item={item}
+                  onEdit={(it) => setModal({ type: 'editItem', data: it })}
+                  onDelete={handleDeleteItem}
+                />
+              ))}
+            </div>
+          )}
+          <div className="add-item-row">
+            <button className="btn-link" onClick={() => setModal({ type: 'addItem', catId: cat.id, subId: null })}>
+              <IconPlus /> Adaugă produs
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Subcategories */}
+      {showSubs && (
+        <>
+          {orderedSubs.map((sub, si) => {
+            const subItems = items.filter(i => i.subcategory_id === sub.id);
+            return (
+              <div
+                key={sub.id}
+                className="sub-section"
+                draggable
+                onDragStart={e => { e.stopPropagation(); setDraggingSub(si); }}
+                onDragOver={e => { e.preventDefault(); e.stopPropagation(); setOverSub(si); }}
+                onDrop={e => { e.preventDefault(); e.stopPropagation(); handleSubReorder(draggingSub, si); }}
+                onDragEnd={e => { e.stopPropagation(); setDraggingSub(null); setOverSub(null); }}
+                style={{
+                  opacity: draggingSub === si ? 0.35 : 1,
+                  borderTop: overSub === si && draggingSub !== si ? '2px solid var(--accent)' : '2px solid transparent',
+                  transition: 'opacity 0.15s',
+                }}
+              >
+                <div className="sub-header">
+                  <div className="drag-handle" title="Trage pentru a reordona"><IconGrip /></div>
+                  <div className="sub-dot" />
+                  <div className="sub-name">{sub.name_ro}</div>
+                  <div className="sub-actions">
+                    <button className="btn btn-ghost btn-sm" onClick={() => setExpandedSubs(s => { const n = new Set(s); n.has(sub.id) ? n.delete(sub.id) : n.add(sub.id); return n; })} title={expandedSubs.has(sub.id) ? 'Restrânge' : 'Expandează'}>
+                      <IconChevron open={expandedSubs.has(sub.id)} />
+                    </button>
+                    <button className="btn btn-ghost btn-sm" onClick={() => setModal({ type: 'editSub', data: sub })} title="Editează sub">
+                      <IconEdit />
+                    </button>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDeleteSub(sub)} title="Șterge sub">
+                      <IconTrash />
+                    </button>
+                  </div>
+                </div>
+                {expandedSubs.has(sub.id) && <>
+                  {subItems.length > 0 && (
+                    <div className="items-list">
+                      {subItems.map(item => (
+                        <ItemRow
+                          key={item.id}
+                          item={item}
+                          onEdit={(it) => setModal({ type: 'editItem', data: it })}
+                          onDelete={handleDeleteItem}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className="add-item-row">
+                    <button className="btn-link" onClick={() => setModal({ type: 'addItem', catId: cat.id, subId: sub.id })}>
+                      <IconPlus /> Adaugă produs
+                    </button>
+                  </div>
+                </>}
+              </div>
+            );
+          })}
+          <div className="add-sub-row" style={{ padding: '8px 16px 14px' }}>
+            <button className="btn-link" onClick={() => setModal({ type: 'addSub' })}>
+              <IconPlus /> Adaugă subcategorie
+            </button>
+          </div>
+        </>
+      )}
+      </>}
+
+      {/* Modals */}
+      {modal?.type === 'editCat' && (
+        <CategoryModal
+          initial={cat}
+          onSave={handleEditCat}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === 'addSub' && (
+        <SubcategoryModal
+          onSave={handleAddSub}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === 'editSub' && (
+        <SubcategoryModal
+          initial={modal.data}
+          onSave={(form) => handleEditSub(modal.data, form)}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === 'addItem' && (
+        <ItemModal
+          onSave={(form) => handleAddItem(modal.catId, modal.subId, form)}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === 'editItem' && (
+        <ItemModal
+          initial={modal.data}
+          onSave={(form) => handleEditItem(modal.data, form)}
+          onClose={() => setModal(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [state, setState] = useState({ status: 'loading', data: null, error: null });
+  const [addCatModal, setAddCatModal] = useState(false);
+  const [draggingCat, setDraggingCat] = useState(null);
+  const [overCat, setOverCat] = useState(null);
+  const [publishState, setPublishState] = useState(null); // null | 'publishing' | 'ok' | 'error'
+  const [publishError, setPublishError] = useState('');
+
+  const handlePublish = async () => {
+    setPublishState('publishing');
+    setPublishError('');
+    try {
+      await apiFetch('/api/publish', { method: 'POST', body: '{}' });
+      setPublishState('ok');
+      setTimeout(() => setPublishState(null), 3000);
+    } catch (e) {
+      setPublishError(e.message);
+      setPublishState('error');
+      setTimeout(() => setPublishState(null), 5000);
+    }
+  };
+
+  const load = useCallback(async () => {
+    setState(s => ({ ...s, status: 'loading' }));
+    try {
+      const data = await apiFetch('/api/admin/data');
+      setState({ status: 'ok', data, error: null });
+    } catch (e) {
+      setState({ status: 'error', data: null, error: e.message });
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleCatReorder = async (from, to) => {
+    if (from === null || from === to) return;
+    const cats = [...state.data.categories];
+    const [moved] = cats.splice(from, 1);
+    cats.splice(to, 0, moved);
+    setState(s => ({ ...s, data: { ...s.data, categories: cats } }));
+    setDraggingCat(null);
+    setOverCat(null);
+    try {
+      await apiFetch('/api/categories/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ ids: cats.map(c => c.id) }),
+      });
+    } catch {
+      load();
+    }
+  };
+
+  const handleAddCat = async (form) => {
+    await apiFetch('/api/categories', { method: 'POST', body: JSON.stringify(form) });
+    await load();
+  };
+
+  return (
+    <>
+      <header className="header">
+        <div className="header-title">Bar Bacioi · <span>Admin</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {publishState === 'ok' && (
+            <span style={{ fontSize: 12, color: '#4caf50' }}>✓ Meniu publicat</span>
+          )}
+          {publishState === 'error' && (
+            <span style={{ fontSize: 12, color: 'var(--danger)' }}>{publishError}</span>
+          )}
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handlePublish}
+            disabled={publishState === 'publishing'}
+            title="Generează și publică fișierul de meniu"
+          >
+            {publishState === 'publishing' ? 'Se publică…' : 'Publică meniu'}
+          </button>
+          <button className="icon-btn" onClick={load} title="Reîncarcă datele">
+            <IconRefresh />
+          </button>
+        </div>
+      </header>
+
+      <main className="content">
+        {state.status === 'loading' && (
+          <div className="status-center">
+            <div className="spinner" />
+            <span>Se încarcă…</span>
+          </div>
+        )}
+
+        {state.status === 'error' && (
+          <div className="error-box">
+            <strong>Eroare la încărcare:</strong> {state.error}
+            <br />
+            <button className="btn btn-ghost btn-sm" style={{ marginTop: 10 }} onClick={load}>
+              Încearcă din nou
+            </button>
+          </div>
+        )}
+
+        {state.status === 'ok' && state.data && (
+          <>
+            <div className="top-action">
+              <button className="btn btn-primary" onClick={() => setAddCatModal(true)}>
+                <IconPlus /> Categorie nouă
+              </button>
+            </div>
+
+            {state.data.categories.length === 0 && (
+              <div className="status-center">
+                <span style={{ color: 'var(--muted)' }}>Nicio categorie. Adaugă prima categorie.</span>
+              </div>
+            )}
+
+            {state.data.categories.map((cat, i) => (
+              <div
+                key={cat.id}
+                draggable
+                onDragStart={() => setDraggingCat(i)}
+                onDragOver={e => { e.preventDefault(); setOverCat(i); }}
+                onDrop={e => { e.preventDefault(); handleCatReorder(draggingCat, i); }}
+                onDragEnd={() => { setDraggingCat(null); setOverCat(null); }}
+                style={{
+                  opacity: draggingCat === i ? 0.35 : 1,
+                  borderTop: overCat === i && draggingCat !== i ? '2px solid var(--accent)' : '2px solid transparent',
+                  transition: 'opacity 0.15s',
+                  marginBottom: 12,
+                }}
+              >
+                <CategoryCard
+                  cat={cat}
+                  index={i + 1}
+                  subs={state.data.subcategories}
+                  items={state.data.items}
+                  onReload={load}
+                />
+              </div>
+            ))}
+          </>
+        )}
+      </main>
+
+      {addCatModal && (
+        <CategoryModal
+          onSave={handleAddCat}
+          onClose={() => setAddCatModal(false)}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
