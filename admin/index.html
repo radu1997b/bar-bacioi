@@ -1099,22 +1099,7 @@ function App() {
   const [addCatModal, setAddCatModal] = useState(false);
   const [draggingCat, setDraggingCat] = useState(null);
   const [overCat, setOverCat] = useState(null);
-  const [publishState, setPublishState] = useState(null); // null | 'publishing' | 'ok' | 'error'
-  const [publishError, setPublishError] = useState('');
 
-  const handlePublish = async () => {
-    setPublishState('publishing');
-    setPublishError('');
-    try {
-      await apiFetch('/api/publish', { method: 'POST', body: '{}' });
-      setPublishState('ok');
-      setTimeout(() => setPublishState(null), 3000);
-    } catch (e) {
-      setPublishError(e.message);
-      setPublishState('error');
-      setTimeout(() => setPublishState(null), 5000);
-    }
-  };
 
   const load = useCallback(async () => {
     setState(s => ({ ...s, status: 'loading' }));
@@ -1156,20 +1141,6 @@ function App() {
       <header className="header">
         <div className="header-title">Bar Bacioi · <span>Admin</span></div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {publishState === 'ok' && (
-            <span style={{ fontSize: 12, color: '#4caf50' }}>✓ Meniu publicat</span>
-          )}
-          {publishState === 'error' && (
-            <span style={{ fontSize: 12, color: 'var(--danger)' }}>{publishError}</span>
-          )}
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={handlePublish}
-            disabled={publishState === 'publishing'}
-            title="Generează și publică fișierul de meniu"
-          >
-            {publishState === 'publishing' ? 'Se publică…' : 'Publică meniu'}
-          </button>
           <button className="icon-btn" onClick={load} title="Reîncarcă datele">
             <IconRefresh />
           </button>

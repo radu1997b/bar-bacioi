@@ -488,12 +488,26 @@ function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, houseLa
     >
       {showPhoto && (
         <div style={{ width: 88 }}>
-          <PhotoPlaceholder
-            label={`${item.id}.jpg`}
-            seed={seed}
-            accent={theme.accent}
-            ratio="1 / 1"
-          />
+          {item.image_url ? (
+            <img
+              src={item.image_url}
+              alt={item.name[lang]}
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1',
+                objectFit: 'cover',
+                borderRadius: 14,
+                display: 'block',
+              }}
+            />
+          ) : (
+            <PhotoPlaceholder
+              label={`${item.id}.jpg`}
+              seed={seed}
+              accent={theme.accent}
+              ratio="1 / 1"
+            />
+          )}
         </div>
       )}
       <div style={{ minWidth: 0 }}>
