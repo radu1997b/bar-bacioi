@@ -17,7 +17,7 @@ export async function onRequestPut({ request, env, params }) {
       price,
       price_bottle = null,
       bottle_only = 0,
-      tag = null,
+      tag_id = null,
       image_url = null,
       sort_order,
     } = body;
@@ -38,7 +38,7 @@ export async function onRequestPut({ request, env, params }) {
       'price = ?',
       'price_bottle = ?',
       'bottle_only = ?',
-      'tag = ?',
+      'tag_id = ?',
       'image_url = ?',
       'subcategory_id = ?',
     ];
@@ -50,7 +50,7 @@ export async function onRequestPut({ request, env, params }) {
       price,
       price_bottle,
       bottle_only ? 1 : 0,
-      tag,
+      tag_id,
       image_url,
       subcategory_id,
     ];

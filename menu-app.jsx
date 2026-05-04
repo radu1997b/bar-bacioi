@@ -448,7 +448,7 @@ function CategoryBody({ cat, lang, theme, showPhotos, showDesc, dense, t, catInd
                 <ItemCard
                   key={item.id} item={item} lang={lang} theme={theme}
                   showPhoto={showPhotos} showDesc={showDesc} dense={dense}
-                  seed={catIndex * 100 + si * 10 + idx} houseLabel={t.house}
+                  seed={catIndex * 100 + si * 10 + idx}
                   glassLabel={t.glass} bottleLabel={t.bottle}
                 />
               ))}
@@ -465,7 +465,7 @@ function CategoryBody({ cat, lang, theme, showPhotos, showDesc, dense, t, catInd
         <ItemCard
           key={item.id} item={item} lang={lang} theme={theme}
           showPhoto={showPhotos} showDesc={showDesc} dense={dense}
-          seed={catIndex * 100 + idx} houseLabel={t.house}
+          seed={catIndex * 100 + idx}
           glassLabel={t.glass} bottleLabel={t.bottle}
         />
       ))}
@@ -473,7 +473,7 @@ function CategoryBody({ cat, lang, theme, showPhotos, showDesc, dense, t, catInd
   );
 }
 
-function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, houseLabel, glassLabel, bottleLabel }) {
+function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, glassLabel, bottleLabel }) {
   const hasBottle = item.priceBottle != null;
   return (
     <div
@@ -526,7 +526,7 @@ function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, houseLa
                 letterSpacing: '-0.005em',
                 margin: 0,
               }}>{item.name[lang]}</h3>
-              {item.tag === 'house' && <HouseTag accent={theme.accent} label={houseLabel} />}
+              {item.tag && <HouseTag accent={theme.accent} label={item.tag[lang]} />}
             </div>
             {showDesc && item.desc && (
               <p style={{

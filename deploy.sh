@@ -69,6 +69,16 @@ if [ -f migration-add-images.sql ]; then
   wrangler d1 execute "$DB_NAME" --remote --file=migration-add-images.sql --yes 2>/dev/null || echo "   Skipped (column may already exist)."
 fi
 
+if [ -f migration-tags.sql ]; then
+  echo ">> Running migration-tags.sql..."
+  wrangler d1 execute "$DB_NAME" --remote --file=migration-tags.sql --yes 2>/dev/null || echo "   Skipped (columns may already exist)."
+fi
+
+if [ -f migration-published-menu.sql ]; then
+  echo ">> Running migration-published-menu.sql..."
+  wrangler d1 execute "$DB_NAME" --remote --file=migration-published-menu.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
+fi
+
 # --- Deploy ---
 echo ""
 echo ">> Deploying to Cloudflare Pages..."

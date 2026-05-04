@@ -16,7 +16,7 @@ export async function onRequestPost({ request, env }) {
       price,
       price_bottle = null,
       bottle_only = 0,
-      tag = null,
+      tag_id = null,
       image_url = null,
     } = body;
 
@@ -39,7 +39,7 @@ export async function onRequestPost({ request, env }) {
       .prepare(
         `INSERT INTO items
           (id, category_id, subcategory_id, name_ro, name_ru, desc_ro, desc_ru,
-           price, price_bottle, bottle_only, tag, image_url, sort_order)
+           price, price_bottle, bottle_only, tag_id, image_url, sort_order)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
@@ -53,7 +53,7 @@ export async function onRequestPost({ request, env }) {
         price,
         price_bottle,
         bottle_only ? 1 : 0,
-        tag,
+        tag_id,
         image_url,
         sort_order
       )

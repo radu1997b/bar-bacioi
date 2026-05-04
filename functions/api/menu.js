@@ -7,15 +7,17 @@ export async function onRequestGet({ env }) {
   try {
     const db = env.DB;
 
-    const [catsResult, subsResult, itemsResult] = await Promise.all([
+    const [catsResult, subsResult, itemsResult, tagsResult] = await Promise.all([
       db.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM subcategories ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM items ORDER BY sort_order ASC').all(),
+      db.prepare('SELECT * FROM tags').all(),
     ]);
 
     const categories = catsResult.results;
     const subcategories = subsResult.results;
     const items = itemsResult.results;
+    const tagsMap = Object.fromEntries(tagsResult.results.map(t => [t.id, t]));
 
     const formatItem = (row) => {
       const out = {
@@ -26,7 +28,8 @@ export async function onRequestGet({ env }) {
       };
       if (row.price_bottle != null) out.priceBottle = row.price_bottle;
       if (row.bottle_only) out.bottleOnly = true;
-      if (row.tag) out.tag = row.tag;
+      const tag = row.tag_id ? tagsMap[row.tag_id] : null;
+      if (tag) out.tag = { ro: tag.name_ro, ru: tag.name_ru };
       if (row.image_url) out.image_url = row.image_url;
       return out;
     };
