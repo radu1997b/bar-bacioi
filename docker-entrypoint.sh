@@ -15,6 +15,7 @@ else
   wrangler d1 execute bar-bacioi-menu --local --file=migration-add-images.sql 2>/dev/null || true
   wrangler d1 execute bar-bacioi-menu --local --file=migration-tags.sql 2>/dev/null || true
   wrangler d1 execute bar-bacioi-menu --local --file=migration-published-menu.sql 2>/dev/null || true
+  wrangler d1 execute bar-bacioi-menu --local --file=migration-auth.sql 2>/dev/null || true
 fi
 
 echo ">>> Starting dev server → http://localhost:8788"

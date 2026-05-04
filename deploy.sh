@@ -79,6 +79,11 @@ if [ -f migration-published-menu.sql ]; then
   wrangler d1 execute "$DB_NAME" --remote --file=migration-published-menu.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
 fi
 
+if [ -f migration-auth.sql ]; then
+  echo ">> Running migration-auth.sql..."
+  wrangler d1 execute "$DB_NAME" --remote --file=migration-auth.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
+fi
+
 # --- Deploy ---
 echo ""
 echo ">> Deploying to Cloudflare Pages..."

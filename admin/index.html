@@ -1136,14 +1136,103 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
   );
 }
 
+// ─── Login Screen ─────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Eroare');
+      onLogin();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh', padding: 20,
+    }}>
+      <form onSubmit={handleSubmit} style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--line)',
+        borderRadius: 12, padding: '40px 32px',
+        width: '100%', maxWidth: 360, textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>
+          Bar Bacioi
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 28 }}>
+          Autentificare Admin
+        </div>
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="Parola"
+          autoFocus
+          style={{
+            width: '100%', padding: '10px 14px',
+            background: 'var(--surface2)', border: '1px solid var(--line)',
+            borderRadius: 'var(--radius)', color: 'var(--text)',
+            fontSize: 14, fontFamily: 'Inter, sans-serif',
+            outline: 'none', marginBottom: 14,
+          }}
+        />
+        {error && (
+          <div style={{ color: 'var(--danger)', fontSize: 12, marginBottom: 12 }}>
+            {error}
+          </div>
+        )}
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={loading || !password}
+          style={{ width: '100%', justifyContent: 'center', padding: '10px 16px', opacity: loading ? 0.6 : 1 }}
+        >
+          {loading ? 'Se autentifică…' : 'Intră'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 function App() {
+  const [auth, setAuth] = useState('checking'); // 'checking' | 'logged-in' | 'logged-out'
   const [state, setState] = useState({ status: 'loading', data: null, error: null });
   const [addCatModal, setAddCatModal] = useState(false);
   const [draggingCat, setDraggingCat] = useState(null);
   const [overCat, setOverCat] = useState(null);
   const [publishing, setPublishing] = useState(false);
   const [publishedAt, setPublishedAt] = useState(null);
+
+  // Check auth on mount
+  useEffect(() => {
+    fetch('/api/auth')
+      .then(r => r.json())
+      .then(data => setAuth(data.authenticated ? 'logged-in' : 'logged-out'))
+      .catch(() => setAuth('logged-out'));
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/auth', { method: 'DELETE' });
+    setAuth('logged-out');
+  };
 
   const loadPublishStatus = useCallback(async () => {
     try {
@@ -1175,7 +1264,7 @@ function App() {
     }
   }, []);
 
-  useEffect(() => { load(); loadPublishStatus(); }, [load, loadPublishStatus]);
+  useEffect(() => { if (auth === 'logged-in') { load(); loadPublishStatus(); } }, [auth, load, loadPublishStatus]);
 
   const handleCatReorder = async (from, to) => {
     if (from === null || from === to) return;
@@ -1200,6 +1289,18 @@ function App() {
     await load();
   };
 
+  if (auth === 'checking') {
+    return (
+      <div className="status-center" style={{ minHeight: '100vh' }}>
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  if (auth === 'logged-out') {
+    return <LoginScreen onLogin={() => setAuth('logged-in')} />;
+  }
+
   return (
     <>
       <header className="header">
@@ -1220,6 +1321,9 @@ function App() {
           </button>
           <button className="icon-btn" onClick={load} title="Reîncarcă datele">
             <IconRefresh />
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={handleLogout} title="Deconectare">
+            Ieși
           </button>
         </div>
       </header>

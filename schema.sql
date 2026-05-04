@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS published_menu (
   published_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS admin_sessions (
+  token TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS items (
   id TEXT PRIMARY KEY,
   category_id TEXT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
