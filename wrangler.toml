@@ -5,7 +5,7 @@ pages_build_output_dir = "."
 [[d1_databases]]
 binding = "DB"
 database_name = "bar-bacioi-menu"
-database_id = "placeholder-replace-with-your-d1-id"
+database_id = "dc468180-6f74-4080-8864-d67a0ee4967b"
 
 [[r2_buckets]]
 binding = "IMAGES"

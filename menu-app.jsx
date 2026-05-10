@@ -343,7 +343,6 @@ function Hero({ theme, t, lang }) {
           fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
           color: theme.accent, marginBottom: 14,
         }}>
-          ◉ {t.tagline}
         </div>
         <img src="assets/bb-logo-trans.png" alt="Bar Bacioi"
           style={{
@@ -358,12 +357,6 @@ function Hero({ theme, t, lang }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
           fontSize: 12, color: theme.muted,
         }}>
-          <span style={{
-            display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
-            background: '#5fe07a',
-            boxShadow: '0 0 8px #5fe07a',
-          }} />
-          {t.open}
         </div>
         <div style={{
           marginTop: 28,
@@ -597,8 +590,6 @@ function Footer({ theme, t, lang }) {
         fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase',
         color: theme.muted, textAlign: 'center',
       }}>
-        Str. Mihai Eminescu · Chișinău
-        <div style={{ marginTop: 6, opacity: 0.6 }}>{t.menuOf} · 2026</div>
       </div>
     </div>
   );
