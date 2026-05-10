@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS admin_sessions (
   created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS items (
   id TEXT PRIMARY KEY,
   category_id TEXT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,

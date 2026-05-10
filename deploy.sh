@@ -82,6 +82,11 @@ if [ -f migration-auth.sql ]; then
   wrangler d1 execute "$DB_NAME" --remote --file=migration-auth.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
 fi
 
+if [ -f migration-settings.sql ]; then
+  echo ">> Running migration-settings.sql..."
+  wrangler d1 execute "$DB_NAME" --remote --file=migration-settings.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
+fi
+
 echo ">> Running seed.sql..."
 wrangler d1 execute "$DB_NAME" --remote --file=seed.sql --yes
 

@@ -906,7 +906,8 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
       method: 'PUT',
       body: JSON.stringify(form),
     });
-    await onReload();
+    setModal(null);
+    onReload();
   };
 
   const handleDeleteCat = () => {
@@ -914,7 +915,7 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
       `Șterge categoria "${cat.name_ro}"? Toate subcategoriile și produsele vor fi șterse.`,
       async () => {
         await apiFetch(`/api/categories/${cat.id}`, { method: 'DELETE' });
-        await onReload();
+        onReload();
       }
     );
   };
@@ -925,7 +926,8 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
       method: 'POST',
       body: JSON.stringify({ ...form, category_id: cat.id }),
     });
-    await onReload();
+    setModal(null);
+    onReload();
   };
 
   const handleEditSub = async (sub, form) => {
@@ -933,7 +935,8 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
       method: 'PUT',
       body: JSON.stringify(form),
     });
-    await onReload();
+    setModal(null);
+    onReload();
   };
 
   const handleDeleteSub = (sub) => {
@@ -941,7 +944,7 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
       `Șterge subcategoria "${sub.name_ro}"? Produsele asociate vor rămâne în categorie.`,
       async () => {
         await apiFetch(`/api/subcategories/${sub.id}`, { method: 'DELETE' });
-        await onReload();
+        onReload();
       }
     );
   };
@@ -952,7 +955,8 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
       method: 'POST',
       body: JSON.stringify({ ...form, category_id: catId, subcategory_id: subId || null }),
     });
-    await onReload();
+    setModal(null);
+    onReload();
   };
 
   const handleEditItem = async (item, form) => {
@@ -964,13 +968,14 @@ function CategoryCard({ cat, index, subs, items, tags, onReload }) {
         subcategory_id: item.subcategory_id || null,
       }),
     });
-    await onReload();
+    setModal(null);
+    onReload();
   };
 
   const handleDeleteItem = (item) => {
     confirmDelete(`Șterge produsul "${item.name_ro}"?`, async () => {
       await apiFetch(`/api/items/${item.id}`, { method: 'DELETE' });
-      await onReload();
+      onReload();
     });
   };
 
@@ -1220,6 +1225,8 @@ function App() {
   const [overCat, setOverCat] = useState(null);
   const [publishing, setPublishing] = useState(false);
   const [publishedAt, setPublishedAt] = useState(null);
+  const [settingsForm, setSettingsForm] = useState({ wifi_password: '', instagram: '' });
+  const [settingsSaving, setSettingsSaving] = useState(false);
 
   // Check auth on mount
   useEffect(() => {
@@ -1255,12 +1262,18 @@ function App() {
   };
 
   const load = useCallback(async () => {
-    setState(s => ({ ...s, status: 'loading' }));
+    setState(s => s.data ? s : { ...s, status: 'loading' });
     try {
       const data = await apiFetch('/api/admin/data');
       setState({ status: 'ok', data, error: null });
+      if (data.settings) {
+        setSettingsForm({
+          wifi_password: data.settings.wifi_password || '',
+          instagram: data.settings.instagram || '',
+        });
+      }
     } catch (e) {
-      setState({ status: 'error', data: null, error: e.message });
+      setState(s => s.data ? s : { status: 'error', data: null, error: e.message });
     }
   }, []);
 
@@ -1286,7 +1299,8 @@ function App() {
 
   const handleAddCat = async (form) => {
     await apiFetch('/api/categories', { method: 'POST', body: JSON.stringify(form) });
-    await load();
+    setAddCatModal(false);
+    load();
   };
 
   if (auth === 'checking') {
@@ -1385,6 +1399,48 @@ function App() {
                 />
               </div>
             ))}
+
+            {/* Settings */}
+            <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--line)' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, color: 'var(--muted)' }}>Setări footer meniu</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                <div>
+                  <label style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>Parolă Wi-Fi</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={settingsForm.wifi_password}
+                    onChange={e => setSettingsForm(s => ({ ...s, wifi_password: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>Instagram</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={settingsForm.instagram}
+                    onChange={e => setSettingsForm(s => ({ ...s, instagram: e.target.value }))}
+                    placeholder="@username"
+                  />
+                </div>
+              </div>
+              <button
+                className="btn btn-ghost btn-sm"
+                disabled={settingsSaving}
+                onClick={async () => {
+                  setSettingsSaving(true);
+                  try {
+                    await apiFetch('/api/settings', { method: 'PUT', body: JSON.stringify(settingsForm) });
+                  } catch (e) {
+                    alert('Eroare: ' + e.message);
+                  } finally {
+                    setSettingsSaving(false);
+                  }
+                }}
+              >
+                {settingsSaving ? 'Se salvează…' : 'Salvează setări'}
+              </button>
+            </div>
           </>
         )}
       </main>

@@ -1497,6 +1497,11 @@ function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, glassLa
 }
 
 function Footer({ theme, t, lang }) {
+  const s = window.MENU_SETTINGS || {};
+  const wifi = s.wifi_password || 'bacioi · 2026';
+  const ig = s.instagram || '@barbacioi';
+  const igUser = ig.replace(/^@/, '');
+  const igHref = `https://instagram.com/${igUser}`;
   return (
     <div style={{
       marginTop: 40,
@@ -1507,8 +1512,8 @@ function Footer({ theme, t, lang }) {
       <div style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
       }}>
-        <FooterTile theme={theme} label={t.wifi} value="bacioi · 2026" />
-        <FooterTile theme={theme} label={t.instagram} value="@barbacioi" />
+        <FooterTile theme={theme} label={t.wifi} value={wifi} />
+        <FooterTile theme={theme} label={t.instagram} value={ig} href={igHref} />
       </div>
       <div style={{
         marginTop: 36, paddingTop: 20,
@@ -1522,8 +1527,8 @@ function Footer({ theme, t, lang }) {
   );
 }
 
-function FooterTile({ theme, label, value }) {
-  return (
+function FooterTile({ theme, label, value, href }) {
+  const content = (
     <div style={{
       padding: '12px 14px',
       border: `1px solid ${theme.line}`,
@@ -1538,6 +1543,10 @@ function FooterTile({ theme, label, value }) {
       <div style={{ fontSize: 13, fontWeight: 500 }}>{value}</div>
     </div>
   );
+  if (href) {
+    return <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>{content}</a>;
+  }
+  return content;
 }
 
 window.BacioiMenu = BacioiMenu;
@@ -1561,6 +1570,7 @@ window.THEMES = THEMES;
         .then(data => {
           if (data && data.published && data.menu && data.menu.length) {
             window.MENU_DATA = data.menu;
+            window.MENU_SETTINGS = data.settings || {};
             setMenuStatus('ok');
             setDataKey(k => k + 1);
           } else {

@@ -55,9 +55,15 @@ export async function onRequestGet({ env }) {
       return Response.json({ published: false }, { headers: CORS });
     }
 
+    const parsed = JSON.parse(row.data);
+    // Support both old format (array) and new format ({ menu, settings })
+    const menu = Array.isArray(parsed) ? parsed : parsed.menu;
+    const settings = Array.isArray(parsed) ? {} : (parsed.settings || {});
+
     return Response.json({
       published: true,
-      menu: JSON.parse(row.data),
+      menu,
+      settings,
       published_at: row.published_at,
     }, { headers: CORS });
   } catch (err) {
@@ -69,14 +75,16 @@ export async function onRequestPost({ env }) {
   try {
     const db = env.DB;
 
-    const [catsResult, subsResult, itemsResult, tagsResult] = await Promise.all([
+    const [catsResult, subsResult, itemsResult, tagsResult, settingsResult] = await Promise.all([
       db.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM subcategories ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM items ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM tags').all(),
+      db.prepare('SELECT key, value FROM settings').all(),
     ]);
 
     const tagsMap = Object.fromEntries(tagsResult.results.map(t => [t.id, t]));
+    const settings = Object.fromEntries(settingsResult.results.map(r => [r.key, r.value]));
     const menu = buildMenu(
       catsResult.results,
       subsResult.results,
@@ -85,9 +93,10 @@ export async function onRequestPost({ env }) {
     );
 
     const now = new Date().toISOString();
+    const payload = JSON.stringify({ menu, settings });
     await db.prepare(
       "INSERT OR REPLACE INTO published_menu (id, data, published_at) VALUES ('current', ?, ?)"
-    ).bind(JSON.stringify(menu), now).run();
+    ).bind(payload, now).run();
 
     return Response.json({ ok: true, published_at: now }, { headers: CORS });
   } catch (err) {

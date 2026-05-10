@@ -10,6 +10,11 @@ INSERT OR IGNORE INTO categories (id, name_ro, name_ru, blurb_ro, blurb_ru, sort
 INSERT OR IGNORE INTO tags (id, name_ro, name_ru) VALUES
   ('recommended', 'Recomandare', 'Хит');
 
+-- Settings
+INSERT OR IGNORE INTO settings (key, value) VALUES
+  ('wifi_password', 'bacioi · 2026'),
+  ('instagram', '@barbacioi');
+
 -- Subcategories for 'bucatarie'
 INSERT OR IGNORE INTO subcategories (id, category_id, name_ro, name_ru, sort_order) VALUES
   ('gustari-reci', 'bucatarie', 'Gustări reci', 'Холодные закуски', 1),

@@ -7,12 +7,15 @@ export async function onRequestGet({ env }) {
   try {
     const db = env.DB;
 
-    const [catsResult, subsResult, itemsResult, tagsResult] = await Promise.all([
+    const [catsResult, subsResult, itemsResult, tagsResult, settingsResult] = await Promise.all([
       db.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM subcategories ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM items ORDER BY sort_order ASC').all(),
       db.prepare('SELECT * FROM tags ORDER BY name_ro ASC').all(),
+      db.prepare('SELECT key, value FROM settings').all(),
     ]);
+
+    const settings = Object.fromEntries(settingsResult.results.map(r => [r.key, r.value]));
 
     return Response.json(
       {
@@ -20,6 +23,7 @@ export async function onRequestGet({ env }) {
         subcategories: subsResult.results,
         items: itemsResult.results,
         tags: tagsResult.results,
+        settings,
       },
       { headers: CORS }
     );
