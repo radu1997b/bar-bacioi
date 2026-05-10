@@ -1252,6 +1252,7 @@ function App() {
     if (!confirm('Publică meniul curent? Vizitatorii vor vedea noile date.')) return;
     setPublishing(true);
     try {
+      await apiFetch('/api/settings', { method: 'PUT', body: JSON.stringify(settingsForm) });
       const res = await apiFetch('/api/publish', { method: 'POST' });
       setPublishedAt(res.published_at);
     } catch (e) {
@@ -1424,22 +1425,6 @@ function App() {
                   />
                 </div>
               </div>
-              <button
-                className="btn btn-ghost btn-sm"
-                disabled={settingsSaving}
-                onClick={async () => {
-                  setSettingsSaving(true);
-                  try {
-                    await apiFetch('/api/settings', { method: 'PUT', body: JSON.stringify(settingsForm) });
-                  } catch (e) {
-                    alert('Eroare: ' + e.message);
-                  } finally {
-                    setSettingsSaving(false);
-                  }
-                }}
-              >
-                {settingsSaving ? 'Se salvează…' : 'Salvează setări'}
-              </button>
             </div>
           </>
         )}
