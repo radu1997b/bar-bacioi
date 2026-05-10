@@ -16,6 +16,7 @@ function buildMenu(categories, subcategories, items, tagsMap) {
     const tag = row.tag_id ? tagsMap[row.tag_id] : null;
     if (tag) out.tag = { ro: tag.name_ro, ru: tag.name_ru };
     if (row.image_url) out.image_url = row.image_url;
+    if (row.weight) out.weight = row.weight;
     return out;
   };
 

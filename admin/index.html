@@ -615,6 +615,8 @@ function ItemModal({ initial, onSave, onClose, tags = [], onTagCreated }) {
     price_bottle: initial?.price_bottle ?? '',
     tag_id: initial?.tag_id ?? '',
     bottle_only: initial?.bottle_only ? true : false,
+    weight: initial?.weight ?? '',
+    has_weight: initial?.weight != null && initial?.weight !== '' ? true : false,
   });
   const [addingTag, setAddingTag] = useState(false);
   const [newTagRo, setNewTagRo] = useState('');
@@ -681,6 +683,7 @@ function ItemModal({ initial, onSave, onClose, tags = [], onTagCreated }) {
         price_bottle: form.price_bottle !== '' ? parseInt(form.price_bottle, 10) : null,
         tag_id: form.tag_id || null,
         bottle_only: form.bottle_only ? 1 : 0,
+        weight: form.has_weight && form.weight !== '' ? parseInt(form.weight, 10) : null,
         image_url,
       });
       onClose();
@@ -764,15 +767,38 @@ function ItemModal({ initial, onSave, onClose, tags = [], onTagCreated }) {
         </div>
       </div>
 
-      <div className="form-group" style={{ marginTop: 6 }}>
-        <label className="form-check">
-          <input
-            type="checkbox"
-            checked={form.bottle_only}
-            onChange={e => set('bottle_only', e.target.checked)}
-          />
-          <span style={{ fontSize: 13 }}>Doar sticlă (bottle only)</span>
-        </label>
+      <div style={{ display: 'flex', gap: 20, marginTop: 6 }}>
+        <div className="form-group">
+          <label className="form-check">
+            <input
+              type="checkbox"
+              checked={form.bottle_only}
+              onChange={e => set('bottle_only', e.target.checked)}
+            />
+            <span style={{ fontSize: 13 }}>Doar sticlă (bottle only)</span>
+          </label>
+        </div>
+        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <label className="form-check" style={{ marginBottom: 0 }}>
+            <input
+              type="checkbox"
+              checked={form.has_weight}
+              onChange={e => { set('has_weight', e.target.checked); if (!e.target.checked) set('weight', ''); }}
+            />
+            <span style={{ fontSize: 13 }}>Gramaj</span>
+          </label>
+          {form.has_weight && (
+            <input
+              className="form-input"
+              type="number"
+              min="1"
+              value={form.weight}
+              onChange={e => set('weight', e.target.value)}
+              placeholder="g"
+              style={{ width: 80 }}
+            />
+          )}
+        </div>
       </div>
 
       <div className="form-divider" />
@@ -837,7 +863,7 @@ function ItemRow({ item, onEdit, onDelete, tags = [] }) {
         <div className="item-name-ro">{item.name_ro}</div>
         <div className="item-name-ru">{item.name_ru}</div>
       </div>
-      <div className="item-price">{item.price} MDL{item.price_bottle ? ` / ${item.price_bottle}` : ''}</div>
+      <div className="item-price">{item.price} MDL{item.price_bottle ? ` / ${item.price_bottle}` : ''}{item.weight ? ` · ${item.weight}g` : ''}</div>
       {tag && <span className="tag-badge">{tag.name_ro}</span>}
       <div className="item-actions">
         <button className="btn btn-ghost btn-sm" onClick={() => onEdit(item)} title="Editează">

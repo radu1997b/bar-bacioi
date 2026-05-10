@@ -50,5 +50,6 @@ CREATE TABLE IF NOT EXISTS items (
   bottle_only INTEGER NOT NULL DEFAULT 0,
   tag_id TEXT REFERENCES tags(id) ON DELETE SET NULL,
   image_url TEXT,
+  weight INTEGER,
   sort_order INTEGER NOT NULL DEFAULT 0
 );

@@ -531,7 +531,7 @@ function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, glassLa
           </div>
           <div style={{
             flex: '0 0 auto',
-            textAlign: 'right',
+            textAlign: 'left',
             fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
             fontSize: 13, fontWeight: 600,
             letterSpacing: '0.02em',
@@ -539,7 +539,7 @@ function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, glassLa
             color: theme.text,
           }}>
             {hasBottle ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <span>{item.price} <span style={{ fontSize: 9, color: theme.muted }}>MDL · {glassLabel}</span></span>
                 <span style={{ fontSize: 12, color: theme.muted }}>{item.priceBottle} <span style={{ fontSize: 9 }}>MDL · {bottleLabel}</span></span>
               </div>

@@ -19,6 +19,7 @@ export async function onRequestPut({ request, env, params }) {
       bottle_only = 0,
       tag_id = null,
       image_url = null,
+      weight = null,
       sort_order,
     } = body;
 
@@ -40,6 +41,7 @@ export async function onRequestPut({ request, env, params }) {
       'bottle_only = ?',
       'tag_id = ?',
       'image_url = ?',
+      'weight = ?',
       'subcategory_id = ?',
     ];
     const values = [
@@ -52,6 +54,7 @@ export async function onRequestPut({ request, env, params }) {
       bottle_only ? 1 : 0,
       tag_id,
       image_url,
+      weight,
       subcategory_id,
     ];
 

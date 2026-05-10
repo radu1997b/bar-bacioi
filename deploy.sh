@@ -87,6 +87,11 @@ if [ -f migration-settings.sql ]; then
   wrangler d1 execute "$DB_NAME" --remote --file=migration-settings.sql --yes 2>/dev/null || echo "   Skipped (table may already exist)."
 fi
 
+if [ -f migration-weight.sql ]; then
+  echo ">> Running migration-weight.sql..."
+  wrangler d1 execute "$DB_NAME" --remote --file=migration-weight.sql --yes 2>/dev/null || echo "   Skipped (column may already exist)."
+fi
+
 echo ">> Running seed.sql..."
 wrangler d1 execute "$DB_NAME" --remote --file=seed.sql --yes
 
