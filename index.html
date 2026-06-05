@@ -1415,26 +1415,26 @@ function CategoryBody({ cat, lang, theme, showPhotos, showDesc, dense, t, catInd
 
 function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, glassLabel, bottleLabel }) {
   const hasBottle = item.priceBottle != null;
+  const hasImage = showPhoto && !!item.image_url;
   return (
     <div
       data-screen-label={`item-${item.id}`}
       data-om-validate
       style={{
         display: 'grid',
-        gridTemplateColumns: showPhoto ? '88px 1fr' : '1fr',
-        gap: 14,
+        gridTemplateColumns: hasImage ? '88px 1fr' : '1fr',
+        gap: hasImage ? 14 : 0,
         alignItems: 'flex-start',
+        minHeight: showPhoto ? 88 : 0,
       }}
     >
-      {showPhoto && (
+      {hasImage && (
         <div style={{ width: 88, height: 88, flexShrink: 0 }}>
-          {item.image_url && (
-            <img
-              src={item.image_url}
-              alt={item.name[lang]}
-              style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 8, display: 'block' }}
-            />
-          )}
+          <img
+            src={item.image_url}
+            alt={item.name[lang]}
+            style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 8, display: 'block' }}
+          />
         </div>
       )}
       <div style={{ minWidth: 0 }}>
