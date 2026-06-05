@@ -1427,19 +1427,12 @@ function ItemCard({ item, lang, theme, showPhoto, showDesc, dense, seed, glassLa
       }}
     >
       {showPhoto && (
-        <div style={{ width: 88 }}>
-          {item.image_url ? (
+        <div style={{ width: 88, height: 88, flexShrink: 0 }}>
+          {item.image_url && (
             <img
               src={item.image_url}
               alt={item.name[lang]}
               style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 8, display: 'block' }}
-            />
-          ) : (
-            <PhotoPlaceholder
-              label={`${item.id}.jpg`}
-              seed={seed}
-              accent={theme.accent}
-              ratio="1 / 1"
             />
           )}
         </div>
